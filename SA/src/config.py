@@ -10,3 +10,4 @@ class Settings:
     @property
     def DATABASE_URL_asyncpg(self):
         return f"postgresql+asyncpg://{}{}{}{}{}"
+    ewwrtw
