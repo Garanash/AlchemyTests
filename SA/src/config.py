@@ -26,6 +26,11 @@ class Settings(BaseSettings):
         db_url: str = f"sqlite:///{BASE_DIR}/db.sqlite3"
         return db_url
 
+    @property
+    def DATABASE_URL_aiosqlite(self):
+        db_url: str = f"sqlite+aiosqlite:///{BASE_DIR}/db.sqlite3"
+        return db_url
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
