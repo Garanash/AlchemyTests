@@ -15,10 +15,10 @@ async def get_123():
 
 
 def create_tables():
-    sync_engine.echo = False
+    sync_engine.echo = True
     metadata_obj.drop_all(sync_engine)
     metadata_obj.create_all(sync_engine)
-    sync_engine.echo = True
+    # sync_engine.echo = True
 
 
 def insert_data():
