@@ -1,38 +1,68 @@
-from sqlalchemy import URL, create_engine, text, insert
-from database import sync_engine, async_engine
-from models import metadata_obj, workers_table
+from sqlalchemy import URL, create_engine, text, insert, select
+from database import sync_engine, async_engine, Base
 
-def get_123_sync():
-    with sync_engine.connect() as conn:
-        res = conn.execute(text("SELECT 1, 2, 3"))
-        print(f"{res.first()=}")
+from SA.src.models import WorkersOrm
 
 
-async def get_123():
-    async with async_engine.connect() as conn:
-        res = await conn.execute(text("SELECT 1, 2, 3"))
-        print(f"{res.first()=}")
+class SyncCore:
+    @staticmethod
+    def create_tables():
+        Base.metadata.drop_all(sync_engine)
+        Base.metadata.create_all(sync_engine)
+
+    @staticmethod
+    def insert_data():
+        with sync_engine.connect() as conn:
+            # stmt = """
+            # INSERT INTO workers (username) VALUES('Bobr'),('Volk');
+            # """
+            stmt = insert('workers').values(
+                [
+                    {'username': "Bobriha"},
+                    {'username': 'Volchiha'}
+                ]
+            )
+            conn.execute(stmt)
+            conn.commit()
+
+    @staticmethod
+    def select_workers():
+        with sync_engine.connect() as conn:
+            query = select('workers')
+            result = conn.execute(query)
+            print(result.all())
+
+class AcyncCore:
+    @staticmethod
+    async def create_tables():
+        async_engine.echo = True
+        Base.metadata.drop_all(sync_engine)
+        Base.metadata.create_all(sync_engine)
+        async_engine.echo = True
+
+    @staticmethod
+    async def insert_data():
+        with async_engine.connect() as conn:
+            # stmt = """
+            # INSERT INTO workers (username) VALUES('Bobr'),('Volk');
+            # """
+            stmt = insert('workers').values(
+                [
+                    {'username': "Bobriha"},
+                    {'username': 'Volchiha'}
+                ]
+            )
+            await conn.execute(stmt)
+            await conn.commit()
+
+    @staticmethod
+    async def select_workers():
+        async with async_engine.connect() as conn:
+            query = select('workers')
+            result = await conn.execute(query)
+            print(result.all())
 
 
-def create_tables():
-    sync_engine.echo = True
-    metadata_obj.drop_all(sync_engine)
-    metadata_obj.create_all(sync_engine)
-    # sync_engine.echo = True
 
 
-def insert_data():
-    with sync_engine.connect() as conn:
-        # stmt = """
-        # INSERT INTO workers (username) VALUES
-        # ('Bobr'),
-        # ('Volk');
-        # """
-        stmt = insert(workers_table).values(
-            [
-                {'username': "Bobriha"},
-                {'username': 'Volchiha'}
-            ]
-        )
-        conn.execute(stmt)
-        conn.commit()
+
